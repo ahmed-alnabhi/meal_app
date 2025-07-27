@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meal_app/core/style/font.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
    Widget build(BuildContext context) {
      return Scaffold(
       body: Center(
-        child: Text('Hello World'),
+        child: Text('Hello World' , style: TextStyle( fontFamily: AppFont.inter,  fontSize: 20 , fontWeight: FontWeight.w500),),
       ),
      );
    }
