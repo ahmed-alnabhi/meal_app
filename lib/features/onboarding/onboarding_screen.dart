@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:meal_app/core/style/colors.dart';
-import 'package:meal_app/features/home/home.dart';
+import 'package:meal_app/core/style/routing/app_routes.dart';
+import 'package:meal_app/features/home/home_screen.dart';
 import 'package:meal_app/features/onboarding/onboarding_service/onboarding_services.dart';
 import 'package:provider/provider.dart';
 import 'onboarding_provider.dart';
@@ -21,10 +23,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   bool isFirstTime = OnboardingServices.isFirstTime();
     if (!isFirstTime) {
       log("Not first time, navigating to HomeScreen");
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+           GoRouter.of(context).pushReplacementNamed(AppRoutes.homeScreen);
     } else {
       log("First time, showing onboarding screen");
       OnboardingServices.setFirstTime();
@@ -162,12 +161,7 @@ class OnboardingView extends StatelessWidget {
                           width: 55,
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(),
-                                ),
-                              );
+                            GoRouter.of(context).pushReplacementNamed(AppRoutes.homeScreen);
                             },
                             child: Center(
                               child: Icon(
