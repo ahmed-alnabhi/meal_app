@@ -1,11 +1,38 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/features/home/home.dart';
+import 'package:meal_app/features/onboarding/onboarding_service/onboarding_services.dart';
 import 'package:provider/provider.dart';
 import 'onboarding_provider.dart';
 
-class Onboarding extends StatelessWidget {
-  const Onboarding({super.key});
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+  bool isFirstTime = OnboardingServices.isFirstTime();
+    if (!isFirstTime) {
+      log("Not first time, navigating to HomeScreen");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      log("First time, showing onboarding screen");
+      OnboardingServices.setFirstTime();
+    }
+    });
+  
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
