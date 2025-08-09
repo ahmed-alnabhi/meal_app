@@ -4,8 +4,10 @@ import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/core/style/font.dart';
 import 'package:meal_app/core/style/routing/app_routes.dart';
 import 'package:meal_app/features/home/data/db_helper/db_helper.dart';
+import 'package:meal_app/features/home/home_screen_provider.dart';
 import 'package:meal_app/features/home/widget/custom_bar_with_image.dart';
 import 'package:meal_app/features/home/widget/meal_item.dart';
+import 'package:provider/provider.dart';
 
 DatabaseHelper dbHelper = DatabaseHelper();
 
@@ -18,12 +20,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
+  void initState() {
+    super.initState();
+    Provider.of<HomeScreenProvider>(context, listen: false).fetchMeals();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-        GoRouter.of(context).pushNamed(AppRoutes.addMeal);
+          GoRouter.of(context).pushNamed(AppRoutes.addMeal);
         },
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
@@ -35,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          customBarImageWithText(),
+          CustomBarImageWithText(),
           SizedBox(height: 25),
           Row(
             children: [
@@ -56,23 +64,22 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: FutureBuilder(
-                future: dbHelper.getMeals(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No foods found' , style: TextStyle(
-                      fontSize:20 , 
-                      fontFamily: AppFont.inter,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primaryColor
-                    ),));
+              child: Consumer<HomeScreenProvider>(
+                builder: (context, homeScreenProvider, child) {
+                  if (homeScreenProvider.meals.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No foods found',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontFamily: AppFont.inter,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    );
                   }
-
-                  final meals = snapshot.data!;
+                  final meals = homeScreenProvider.meals;
                   return GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(

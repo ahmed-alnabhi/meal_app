@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/core/style/font.dart';
 
-class customBarImageWithText extends StatelessWidget {
-  const customBarImageWithText({
+class CustomBarImageWithText extends StatelessWidget {
+  const CustomBarImageWithText({
     super.key,
   });
 

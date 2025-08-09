@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/core/style/routing/app_routes.dart';
-import 'package:meal_app/features/home/home_screen.dart';
 import 'package:meal_app/features/onboarding/onboarding_service/onboarding_services.dart';
 import 'package:provider/provider.dart';
 import 'onboarding_provider.dart';

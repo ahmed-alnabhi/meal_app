@@ -4,6 +4,8 @@ import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/features/add_meal/widgets/custom_text_feild.dart';
 import 'package:meal_app/features/home/data/db_helper/db_helper.dart';
 import 'package:meal_app/features/home/data/models/meal_model.dart';
+import 'package:meal_app/features/home/home_screen_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddMealScreen extends StatefulWidget {
   const AddMealScreen({super.key});
@@ -23,7 +25,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   DatabaseHelper dbHelper = DatabaseHelper();
 
   addMeal() {
-    dbHelper.insertMeal(
+    Provider.of<HomeScreenProvider>(context, listen: false).addMeal(
       Meal(
         name: nameController.text.trim(),
         rating: double.parse(rateController.text),
@@ -37,6 +39,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
     timeController.clear();
     imageUrlController.clear();
     descriptionController.clear();
+    GoRouter.of(context).pop();
   }
 
   @override
@@ -131,6 +134,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter meal rate';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid number';
                       }
                       return null;
                     },
