@@ -85,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisExtent: 240,
-                          // childAspectRatio: 0.7,
                           crossAxisSpacing: 14,
                           mainAxisSpacing: 20,
                         ),
@@ -96,7 +95,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: meals[index].name,
                         rating: meals[index].rating.toString(),
                         time: meals[index].time.toString(),
-                        onTap: () {},
+                        onTap: () {
+                          GoRouter.of(context).pushNamed(
+                            AppRoutes.mealDetailsScreen,
+                            extra: meals[index],
+                          );
+                        },
                       );
                     },
                   );
