@@ -1,8 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/features/add_meal/widgets/custom_text_feild.dart';
-import 'package:meal_app/core/utils/image_utils.dart';
+import 'package:meal_app/features/add_meal/add_meal_provider.dart';
 import 'package:meal_app/features/home/data/db_helper/db_helper.dart';
 import 'package:meal_app/features/home/data/models/meal_model.dart';
 import 'package:meal_app/features/home/home_screen_provider.dart';
@@ -18,69 +19,45 @@ class AddMealScreen extends StatefulWidget {
 class _AddMealScreenState extends State<AddMealScreen> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
-  TextEditingController imageUrlController = TextEditingController();
   TextEditingController rateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
   DatabaseHelper dbHelper = DatabaseHelper();
+  // Image path is managed by AddMealProvider
 
   @override
   void dispose() {
     nameController.dispose();
-    imageUrlController.dispose();
     rateController.dispose();
     timeController.dispose();
     descriptionController.dispose();
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final bool? fromCamera = await showModalBottomSheet<bool>(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt_outlined),
-                title: const Text('Camera'),
-                onTap: () => Navigator.of(context).pop(true),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Gallery'),
-                onTap: () => Navigator.of(context).pop(false),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-    if (fromCamera == null) return;
-    final file = await ImageUtils.pickAndSaveImage(fromCamera: fromCamera);
-    if (file != null) {
-      imageUrlController.text = file.path;
-      setState(() {});
-    }
-  }
-
   void addMeal() {
+    final addMealProvider = context.read<AddMealProvider>();
+    final String? imagePath = addMealProvider.imagePath;
+    if (imagePath == null || imagePath.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add a photo for the meal')),
+      );
+      return;
+    }
     Provider.of<HomeScreenProvider>(context, listen: false).addMeal(
       Meal(
         name: nameController.text.trim(),
         rating: double.tryParse(rateController.text.trim()) ?? 0.0,
         time: timeController.text.trim(),
-        imageUrl: imageUrlController.text.trim(),
+        imageUrl: imagePath.trim(),
         description: descriptionController.text.trim(),
       ),
     );
     nameController.clear();
     rateController.clear();
     timeController.clear();
-    imageUrlController.clear();
     descriptionController.clear();
+    addMealProvider.clearImage();
     GoRouter.of(context).pop();
   }
 
@@ -150,24 +127,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   ),
                   SizedBox(height: 18),
                   Text(
-                    "Image URL",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 6),
-                  CustomTextField(
-                    hintText: "Tap to pick an image",
-                    controller: imageUrlController,
-                    readOnly: true,
-                    onTap: _pickImage,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please pick an image';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 18),
-                  Text(
                     "Rate",
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
@@ -218,7 +177,116 @@ class _AddMealScreenState extends State<AddMealScreen> {
                     },
                     contentHeight: 20,
                   ),
-                  SizedBox(height: 70),
+                  SizedBox(height: 18),
+
+                  // Image picker / preview section (UX: placed above the primary action)
+                  if (context.watch<AddMealProvider>().imagePath == null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8F8F8),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE5E5E5)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.photo_camera_outlined,
+                            color: AppColors.primaryColor,
+                            size: 36,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Add a photo for your meal',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 44,
+                            child: OutlinedButton.icon(
+                              onPressed: () => context
+                                  .read<AddMealProvider>()
+                                  .pickImage(context),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: AppColors.primaryColor,
+                                  width: 1,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              icon: Icon(
+                                Icons.add_a_photo_outlined,
+                                color: AppColors.primaryColor,
+                              ),
+                              label: Text(
+                                'Add Photo',
+                                style: TextStyle(
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(
+                        File(context.watch<AddMealProvider>().imagePath!),
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => context
+                                .read<AddMealProvider>()
+                                .pickImage(context),
+                            icon: const Icon(Icons.edit_outlined),
+                            label: const Text('Replace photo'),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextButton.icon(
+                            onPressed: () =>
+                                context.read<AddMealProvider>().clearImage(),
+                            icon: const Icon(Icons.delete_outline),
+                            label: const Text('Remove'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.redAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
 
                   SizedBox(
                     width: double.infinity,
