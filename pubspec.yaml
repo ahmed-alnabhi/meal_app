@@ -41,7 +41,17 @@ dependencies:
   go_router: ^16.1.0
   image_picker: ^1.1.2
   path_provider: ^2.1.4
+  change_app_package_name: ^1.5.0
+  rename_app: ^1.6.5
+  flutter_launcher_icons: ^0.14.4
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/meal_icon.png"
+  image_path_ios: "assets/images/meal_icon.png"   # أيقونة كاملة لـ iOS
+  adaptive_icon_foreground:  "assets/images/meal_icon.png" # الشعار (بدون خلفية)
+  adaptive_icon_background: "#FE8C00"           # لون الخلفية أو صورة
 dev_dependencies:
   flutter_test:
     sdk: flutter

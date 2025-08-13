@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.meal_app"
+    namespace = "com.mealapp.name"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.meal_app"
+        applicationId = "com.mealapp.name"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
