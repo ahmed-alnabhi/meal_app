@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_app/core/style/colors.dart';
@@ -27,11 +28,22 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: Image.asset(
-                        widget.meal.imageUrl,
+                      child: Image(
+                        image: widget.meal.imageUrl.startsWith('assets/')
+                            ? AssetImage(widget.meal.imageUrl) as ImageProvider
+                            : FileImage(File(widget.meal.imageUrl)),
                         fit: BoxFit.cover,
                         height: 250,
                         width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 250,
+                            width: double.infinity,
+                            color: Colors.grey.shade200,
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.broken_image_outlined),
+                          );
+                        },
                       ),
                     ),
                     Positioned(
@@ -77,7 +89,7 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
                     Container(
                       height: 40,
                       width: double.infinity,
-                      padding: EdgeInsets.only(left: 8 , right: 8),
+                      padding: EdgeInsets.only(left: 8, right: 8),
                       decoration: BoxDecoration(
                         color: AppColors.primaryColor.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -93,14 +105,14 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
                           Text(
                             widget.meal.time,
                             style: TextStyle(
-                            fontSize: 16,
+                              fontSize: 16,
                               color: Color(0xFF878787),
                               fontWeight: FontWeight.w400,
                               fontFamily: AppFont.inter,
                             ),
                           ),
                           Spacer(),
-                             Icon(
+                          Icon(
                             Icons.star,
                             color: AppColors.primaryColor,
                             size: 24,
@@ -119,10 +131,7 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
                       ),
                     ),
                     SizedBox(height: 22),
-                    Divider(
-                      color: Color(0xFFEDEDED),
-                      thickness: 2,
-                    ),
+                    Divider(color: Color(0xFFEDEDED), thickness: 2),
                     SizedBox(height: 20),
                     Text(
                       "Description",
@@ -132,12 +141,12 @@ class _MealDetailsScreenState extends State<MealDetailsScreen> {
                         fontFamily: AppFont.inter,
                       ),
                     ),
-                     SizedBox(height: 15),
-                      Text(
+                    SizedBox(height: 15),
+                    Text(
                       widget.meal.description,
                       style: TextStyle(
                         fontSize: 16,
-                         color: Color(0xFF878787),
+                        color: Color(0xFF878787),
                         fontWeight: FontWeight.w400,
                         fontFamily: AppFont.inter,
                       ),

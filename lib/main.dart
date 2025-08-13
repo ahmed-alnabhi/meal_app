@@ -3,6 +3,7 @@ import 'package:meal_app/core/style/routing/router_generation_config.dart';
 import 'package:meal_app/features/home/home_screen_provider.dart';
 import 'package:meal_app/features/onboarding/onboarding_service/onboarding_services.dart';
 import 'package:provider/provider.dart';
+import 'package:meal_app/features/add_meal/add_meal_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,11 +11,12 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-         ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
-      ], 
+        ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
+        ChangeNotifierProvider(create: (_) => AddMealProvider()),
+      ],
       child: const MyApp(),
-    )
-   );
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
