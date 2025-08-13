@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/core/style/font.dart';
@@ -6,6 +5,7 @@ import 'package:meal_app/core/style/font.dart';
 class CustomTextField extends StatefulWidget {
   final String hintText;
   final bool isEnabled;
+  final bool readOnly;
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final double contentHeight;
@@ -16,6 +16,7 @@ class CustomTextField extends StatefulWidget {
     required this.controller,
     this.validator,
     this.isEnabled = true,
+    this.readOnly = false,
     this.onTap,
     this.contentHeight = 16,
   });
@@ -34,6 +35,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       maxLines: 10,
       onTap: widget.onTap,
       enabled: widget.isEnabled,
+      readOnly: widget.readOnly,
       cursorColor: AppColors.primaryColor,
       controller: widget.controller,
       validator: widget.validator,
@@ -43,10 +45,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         fontWeight: FontWeight.w400,
         color: Colors.black,
         decoration: TextDecoration.none,
-      
       ),
       decoration: InputDecoration(
-          
         contentPadding: EdgeInsets.symmetric(
           horizontal: 16,
           vertical: widget.contentHeight,
@@ -78,14 +78,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
           fontSize: 16,
           color: Colors.black.withValues(alpha: 0.4),
           fontWeight: FontWeight.w400,
-    //      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+          //      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.black),
         ),
-
-               
       ),
     );
   }

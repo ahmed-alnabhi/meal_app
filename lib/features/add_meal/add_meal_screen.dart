@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_app/core/style/colors.dart';
 import 'package:meal_app/features/add_meal/widgets/custom_text_feild.dart';
+import 'package:meal_app/core/utils/image_utils.dart';
 import 'package:meal_app/features/home/data/db_helper/db_helper.dart';
 import 'package:meal_app/features/home/data/models/meal_model.dart';
 import 'package:meal_app/features/home/home_screen_provider.dart';
@@ -24,11 +25,52 @@ class _AddMealScreenState extends State<AddMealScreen> {
 
   DatabaseHelper dbHelper = DatabaseHelper();
 
-  addMeal() {
+  @override
+  void dispose() {
+    nameController.dispose();
+    imageUrlController.dispose();
+    rateController.dispose();
+    timeController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final bool? fromCamera = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt_outlined),
+                title: const Text('Camera'),
+                onTap: () => Navigator.of(context).pop(true),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Gallery'),
+                onTap: () => Navigator.of(context).pop(false),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (fromCamera == null) return;
+    final file = await ImageUtils.pickAndSaveImage(fromCamera: fromCamera);
+    if (file != null) {
+      imageUrlController.text = file.path;
+      setState(() {});
+    }
+  }
+
+  void addMeal() {
     Provider.of<HomeScreenProvider>(context, listen: false).addMeal(
       Meal(
         name: nameController.text.trim(),
-        rating: double.parse(rateController.text),
+        rating: double.tryParse(rateController.text.trim()) ?? 0.0,
         time: timeController.text.trim(),
         imageUrl: imageUrlController.text.trim(),
         description: descriptionController.text.trim(),
@@ -113,11 +155,13 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   ),
                   SizedBox(height: 6),
                   CustomTextField(
-                    hintText: "https://foodiesfeed.com/...",
+                    hintText: "Tap to pick an image",
                     controller: imageUrlController,
+                    readOnly: true,
+                    onTap: _pickImage,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter image link';
+                        return 'Please pick an image';
                       }
                       return null;
                     },
